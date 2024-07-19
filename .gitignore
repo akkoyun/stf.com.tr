@@ -1,6 +1,4 @@
-# Wordpress - ignore core, configuration, examples, uploads and logs.
-# https://github.com/github/gitignore/blob/main/WordPress.gitignore
-
+### WordPress ###
 # Core
 #
 # Note: if you want to stage/commit WP core files
@@ -36,13 +34,48 @@ wp-config.php
 /.htaccess
 
 # All plugins
-#
 # Note: If you wish to whitelist plugins,
 # uncomment the next line
 #/wp-content/plugins
 
 # All themes
-#
 # Note: If you wish to whitelist themes,
 # uncomment the next line
 #/wp-content/themes
+
+### macOS ###
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must end with two \r
+Icon
+
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+### macOS Patch ###
+# iCloud generated files
+*.icloud
+
+
+
+

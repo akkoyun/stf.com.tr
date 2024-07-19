@@ -1,0 +1,154 @@
+# Docker Compose Version
+version: '3.8'
+
+# Services
+services:
+
+  # Nginx Service
+  nginx:
+
+    # Container Name
+    container_name: ${NGINX_SERVICE_NAME}
+
+    # Image
+    image: nginx:1.15.12-alpine
+
+    # Restart Policy
+    restart: unless-stopped
+
+    # Environment Variables
+    env_file:
+      - .env
+
+    # Environment
+    environment:
+      HOSTNAME: ${HOSTNAME}
+
+    # Depends
+    depends_on:
+      - wordpress
+
+    # Ports
+    ports:
+      - "8080:80"
+
+    # Volumes
+    volumes:
+      - ./nginx:/etc/nginx/conf.d:rw
+      - wordpress:/var/www/html
+
+    # Networks
+    networks:
+      - internal
+
+  # Database Service
+  database:
+
+    # Container Name
+    container_name: ${DB_SERVICE_NAME}
+
+    # Image
+    image: mysql:8.0
+
+    # Restart Policy
+    restart: unless-stopped
+
+    # Environment Variables
+    env_file:
+      - .env
+
+    # Environment
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DATABASE_NAME}
+      MYSQL_USER: ${DATABASE_USER}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+
+    # Healthcheck
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost", "-u", "root", "-p$$DATABASE_ROOT_PASSWORD" ]
+      timeout: 20s
+      retries: 10
+
+    # Ports
+    ports:
+      - "3306:3306"
+
+    # Volumes
+    volumes:
+      - dbdata:/var/lib/mysql
+
+    # Networks
+    networks:
+      - internal
+
+  # PHPmyadmin Service
+  phpmyadmin:
+
+    # Container Name
+    container_name: ${PHP_MY_ADMIN_SERVICE_NAME}
+
+    # Image
+    image: phpmyadmin/phpmyadmin
+
+    # Restart Policy
+    env_file: .env
+
+    # Depends
+    environment:
+      PMA_HOST: database
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: "${DATABASE_ROOT_PASSWORD}"
+
+    # Ports
+    ports:
+      - "8081:80"
+
+    # Networks
+    networks:
+      - internal
+
+  # Wordpress Service
+  wordpress:
+
+    # Depends
+    depends_on:
+      - database
+
+    # Container Name
+    container_name: ${WORDPRESS_SERVICE_NAME}
+
+    # Image
+    image: wordpress:6.6.0-fpm-alpine
+
+    # Restart Policy
+    restart: unless-stopped
+
+    # Environment Variables
+    env_file: .env 
+
+    # Environment
+    environment:
+      WORDPRESS_DB_HOST: database:3306
+      WORDPRESS_DB_NAME: '${DATABASE_NAME}'
+      WORDPRESS_DB_USER: '${DATABASE_USER}'
+      WORDPRESS_DB_PASSWORD: '${DATABASE_PASSWORD}'
+
+    # Volumes
+    volumes:
+      - wordpress:/var/www/html
+      - ./src:/var/www/html/wp-content:rw
+
+
+    networks:
+      - internal
+
+# Volumes
+volumes:
+  dbdata:
+  wordpress:
+
+# Networks
+networks:
+  internal:
+    driver: bridge
